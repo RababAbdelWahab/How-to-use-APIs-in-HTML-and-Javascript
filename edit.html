@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+
+    <style>
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+        }
+
+        form {
+            border: 3px solid #f1f1f1;
+        }
+
+        input[type=text],
+        input[type=email],
+        input[type=password] {
+            width: 100%;
+            padding: 12px 20px;
+            margin: 8px 0;
+            display: inline-block;
+            border: 1px solid #ccc;
+            box-sizing: border-box;
+        }
+
+        button {
+            background-color: #04AA6D;
+            color: white;
+            padding: 14px 20px;
+            margin: 8px 0;
+            border: none;
+            cursor: pointer;
+            width: 100%;
+        }
+
+        button:hover {
+            opacity: 0.8;
+        }
+
+        .container {
+            padding: 16px;
+        }
+
+        span.psw {
+            float: right;
+            padding-top: 16px;
+        }
+
+        .loginform {
+            width: 40%;
+            margin-top: 10%;
+            margin-left: 30%;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="loginform">
+        <h2>user data</h2>
+
+        <form method="post">
+            <div class="container">
+                <label for="uname"><b>first name</b></label>
+                <input type="text" placeholder="Enter firstname" name="firstname" id="firstname" required>
+
+                <label for="uname"><b>last name</b></label>
+                <input type="text" placeholder="Enter secondname" name="secondname" id="secondname" required>
+
+                <label for="email"><b>email</b></label>
+                <input type="email" placeholder="Enter email" name="email" id="email" required>
+
+                <button type="button" onclick="edit()">Edit</button>
+            </div>
+
+        </form>
+    </div>
+
+    <script>
+        $(document).ready(function () {
+            //get id from url to update it
+            const queryString = window.location.search;
+            const urlParams = new URLSearchParams(queryString);
+            const param = urlParams.get('id');
+            //make get request to get data user
+            var request = new XMLHttpRequest();
+            request.open('GET', 'https://jsonplaceholder.typicode.com/users/' + param);
+            request.send();
+            request.onload = () => {
+                var data = JSON.parse(request.response);
+                const myArr = data.name.split(" ");
+                // put the data in html faildes
+                document.getElementById("firstname").value = myArr[0];
+                document.getElementById("secondname").value = myArr[1];
+                document.getElementById("email").value = data.email;
+
+            }
+        });
+        function edit() {
+            //make validation on inputs
+            var letters = /^[A-Za-z]+$/;
+            if (!document.getElementById("firstname").value.match(letters)) {
+                alert("First name contains letters only");
+                return;
+            }
+            if (!document.getElementById("secondname").value.match(letters)) {
+                alert("second name contains letters only");
+                return;
+            }
+            var validRegex = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/;
+            if (!document.getElementById("email").value.match(validRegex)) {
+                alert("Please enter a valid mail");
+                return;
+            }
+            // make put request to udtate user data
+            const queryString = window.location.search;
+            const urlParams = new URLSearchParams(queryString);
+            const param = urlParams.get('id');
+            var request = new XMLHttpRequest();
+            request.open('PUT', 'https://jsonplaceholder.typicode.com/users/' + param);
+            let updateData = JSON.stringify({
+                name: document.getElementById("firstname").value + " " + document.getElementById("secondname").value,
+                email: document.getElementById("email").value
+
+            });
+            request.setRequestHeader('Content-type', 'application/json; charset=utf-8');
+            request.send(updateData);
+            request.onload = () => {
+                var data = JSON.parse(request.response);
+                console.log(data);
+                alert("update succssefully");
+            }
+
+        }
+    </script>
+</body>
+
+</html>
